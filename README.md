@@ -38,3 +38,7 @@ Em **Settings › Secrets and variables › Actions**:
 ## Atenção
 
 O repositório é público porque a Meta busca as imagens pela URL. Quem fuçar vê o que tá em `agendados` antes da hora.
+
+## Token
+
+O `token.json` guarda só a data em que o token foi gerado (nunca o token). Um vigia semanal usa essa data pra avisar antes de vencer. Ao gerar um token novo, atualiza `gerado_em`.
