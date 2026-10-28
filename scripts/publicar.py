@@ -83,23 +83,26 @@ def verificar():
 
 def publicar_pasta(pasta):
     imagens = sorted(p for p in pasta.iterdir() if p.suffix.lower() in (".jpg", ".jpeg"))
-    if not 2 <= len(imagens) <= 10:
-        sys.exit(f"{pasta.name}: carrossel precisa de 2 a 10 JPEGs, achei {len(imagens)}.")
+    if not 1 <= len(imagens) <= 10:
+        sys.exit(f"{pasta.name}: o post precisa de 1 a 10 JPEGs, achei {len(imagens)}.")
     legenda_arq = pasta / "legenda.txt"
     legenda = legenda_arq.read_text(encoding="utf-8").strip() if legenda_arq.exists() else ""
 
-    print(f"Publicando {pasta.name} com {len(imagens)} imagens")
-    filhos = []
-    for img in imagens:
-        c = chamar("POST", f"{USER_ID}/media", image_url=url_publica(img), is_carousel_item="true")
-        esperar_pronto(c["id"], img.name)
-        filhos.append(c["id"])
-        print(f"  {img.name} ok")
-
-    carrossel = chamar("POST", f"{USER_ID}/media", media_type="CAROUSEL",
-                       children=",".join(filhos), caption=legenda)
-    esperar_pronto(carrossel["id"], "carrossel")
-    publicado = chamar("POST", f"{USER_ID}/media_publish", creation_id=carrossel["id"])
+    print(f"Publicando {pasta.name} com {len(imagens)} imagem(ns)")
+    if len(imagens) == 1:
+        container = chamar("POST", f"{USER_ID}/media", image_url=url_publica(imagens[0]), caption=legenda)
+        esperar_pronto(container["id"], imagens[0].name)
+    else:
+        filhos = []
+        for img in imagens:
+            c = chamar("POST", f"{USER_ID}/media", image_url=url_publica(img), is_carousel_item="true")
+            esperar_pronto(c["id"], img.name)
+            filhos.append(c["id"])
+            print(f"  {img.name} ok")
+        container = chamar("POST", f"{USER_ID}/media", media_type="CAROUSEL",
+                           children=",".join(filhos), caption=legenda)
+        esperar_pronto(container["id"], "carrossel")
+    publicado = chamar("POST", f"{USER_ID}/media_publish", creation_id=container["id"])
     link = chamar("GET", publicado["id"], fields="permalink").get("permalink")
     print(f"Publicado: {link}")
 

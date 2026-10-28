@@ -15,7 +15,7 @@ posts/
 
 Dentro de cada pasta:
 
-- `01.jpg`, `02.jpg`… os slides, na ordem do nome (2 a 10, 1080×1350)
+- `01.jpg`, `02.jpg`… os slides, na ordem do nome (1 a 10, 1080×1350; com 1 vira post simples)
 - `legenda.txt` a legenda, do jeito que vai pro Instagram
 - `post.json` a data, com fuso: `{"publicar_em": "2026-10-28T19:00:00-03:00"}`
 
