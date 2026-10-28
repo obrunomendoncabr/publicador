@@ -17,7 +17,7 @@ Dentro de cada pasta:
 
 - `01.jpg`, `02.jpg`… os slides, na ordem do nome (1 a 10, 1080×1350; com 1 vira post simples)
 - `legenda.txt` a legenda, do jeito que vai pro Instagram
-- `post.json` a data, com fuso: `{"publicar_em": "2026-10-28T19:00:00-03:00"}`
+- `post.json` a data, com fuso: `{"publicar_em": "2026-10-28T19:00:00-03:00"}`. Pra story, acrescenta `"tipo": "story"` (imagem 1080×1920, sem legenda; cada imagem vira um story)
 
 **Aprovar um post é mover a pasta de `rascunhos` pra `agendados`.** O GitHub roda a cada 30 minutos, publica o que estiver vencido e move a pasta pra `publicados`.
 

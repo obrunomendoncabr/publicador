@@ -87,6 +87,27 @@ def publicar_pasta(pasta):
         sys.exit(f"{pasta.name}: o post precisa de 1 a 10 JPEGs, achei {len(imagens)}.")
     legenda_arq = pasta / "legenda.txt"
     legenda = legenda_arq.read_text(encoding="utf-8").strip() if legenda_arq.exists() else ""
+    meta_arq = pasta / "post.json"
+    meta = json.loads(meta_arq.read_text(encoding="utf-8")) if meta_arq.exists() else {}
+    tipo = meta.get("tipo", "feed")
+
+    if tipo == "story":
+        # story não tem legenda; cada imagem vira um story, na ordem
+        print(f"Publicando {pasta.name} como story ({len(imagens)} imagem(ns))")
+        ids = []
+        for img in imagens:
+            c = chamar("POST", f"{USER_ID}/media", image_url=url_publica(img), media_type="STORIES")
+            esperar_pronto(c["id"], img.name)
+            ids.append(chamar("POST", f"{USER_ID}/media_publish", creation_id=c["id"])["id"])
+            print(f"  {img.name} no ar")
+        meta.update({"publicado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                     "media_ids": ids})
+        meta_arq.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+        PUBLICADOS.mkdir(parents=True, exist_ok=True)
+        shutil.move(str(pasta), str(PUBLICADOS / pasta.name))
+        return
+    if tipo != "feed":
+        sys.exit(f"{pasta.name}: tipo desconhecido '{tipo}' (use feed ou story).")
 
     print(f"Publicando {pasta.name} com {len(imagens)} imagem(ns)")
     if len(imagens) == 1:
@@ -106,8 +127,6 @@ def publicar_pasta(pasta):
     link = chamar("GET", publicado["id"], fields="permalink").get("permalink")
     print(f"Publicado: {link}")
 
-    meta_arq = pasta / "post.json"
-    meta = json.loads(meta_arq.read_text(encoding="utf-8")) if meta_arq.exists() else {}
     meta.update({"publicado_em": datetime.now(timezone.utc).isoformat(timespec="seconds"),
                  "media_id": publicado["id"], "link": link})
     meta_arq.write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
